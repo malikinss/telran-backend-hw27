@@ -1,0 +1,7 @@
+# .gitignore
+
+.mypy_cache
+CW*.py
+__pycache__
+tmp.md
+

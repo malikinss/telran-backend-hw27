@@ -1,0 +1,8 @@
+{
+	"python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
+	"python.testing.pytestEnabled": false,
+	"python.testing.unittestEnabled": true,
+	"python.linting.flake8Enabled": true,
+	"python.sortImports.path": "isort",
+	"python.sortImports.args": ["--profile", "black"]
+}
