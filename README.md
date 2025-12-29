@@ -2,125 +2,78 @@
 
 ## Task Definition
 
-Implement all methods marked with `TODO` in the class `LfuDictCache`.
+The goal of this homework is to implement a custom dictionary-like cache called `LfuDictCache` that:
 
-`LfuDictCache` is a dictionary-like cache with a **limited capacity** that evicts
-items according to the **LFU (Least Frequently Used)** strategy.
+-   Supports a **limited capacity**
+-   Evicts items according to the **LFU (Least Frequently Used)** strategy
+-   Uses **LRU (Least Recently Used)** as a tie-breaker when multiple items have the same frequency
+
+You must implement all methods marked with `TODO` in the `LfuDictCache` class and ensure that it passes **all unit tests** provided in `test_lfu_dict_cache.py`.
 
 ### Cache Eviction Policy
 
-1. **LFU (Least Frequently Used)**
+1. **LFU (Least Frequently Used)**  
+   The key-value pair with the **lowest access frequency** is evicted when the cache exceeds its maximum size.
 
-    - When the cache exceeds its maximum size, the key-value pair with the
-      **lowest access frequency** must be removed.
-
-2. **LRU tie-breaker**
-    - If multiple keys have the same minimal frequency, the
-      **least recently used** key among them must be evicted.
+2. **LRU Tie-Breaker**  
+   If multiple keys have the same minimal frequency, the **least recently used key** among them will be removed first.
 
 ### Notes & Hints
 
--   LFU = _Least Frequently Used_
 -   Access frequency must be incremented on:
-    -   `__getitem__`
+    -   `__getitem__` (key lookup)
     -   updating an existing key via `__setitem__`
 -   Consider using:
-    -   `DictCache` class (see `main.py`)
-    -   `SortedDict` from the `sortedcontainers` package for organizing frequencies
--   The implementation must pass **all tests from `test_lfu_dict_cache.py`**
-
-### Provided Classes
-
-#### DictCache
-
-`DictCache` is a helper class based on `OrderedDict` that implements an **LRU cache**.
-It automatically:
-
--   moves accessed keys to the most recent position
--   evicts the least recently used key when capacity is exceeded
-
-You may use this class internally to resolve **LRU behavior** when LFU frequencies are equal.
-
-### Class to Implement
-
-```python
-class LfuDictCache(Generic[K, V]):
-```
-
-### Constructor
-
-```python
-def __init__(self, max_size: int):
-```
-
-#### Requirements
-
--   Initialize an LFU cache with a maximum capacity `max_size`
--   Define and initialize all internal data structures required for:
-
-    -   storing key-value pairs
-    -   tracking access frequencies
-    -   resolving LRU order when frequencies are equal
-
-### Required Methods
-
-1.  `__getitem__`
-
-```python
-def __getitem__(self, key: K) -> V:
-```
-
--   Return the value associated with `key`
--   Increase the access frequency of the key
--   Update recency information (for LRU tie-break)
--   Raise `KeyError` if the key does not exist
+    -   `DictCache` class (an LRU cache helper)
+    -   `SortedDict` from the `sortedcontainers` package for organizing frequencies efficiently
+-   All implemented methods must mimic dictionary behavior and pass the unit tests
 
 ---
 
-2.  `__setitem__`
+## 📝 Description
 
-```python
-def __setitem__(self, key: K, value: V):
-```
+`LfuDictCache` is a custom cache combining **LFU** and **LRU** strategies. It is designed for scenarios where:
 
--   If `key` already exists:
--   Update its value
--   Increase its access frequency
--   Update recency
--   If `key` is new:
-    -   Insert it with initial frequency
-    -   If insertion causes the cache to exceed `max_size`:
--   Evict one key according to LFU policy
--   Use LRU strategy when frequencies are equal
+-   Frequently accessed items should remain in memory
+-   Less frequently used items should be evicted to free space
+-   Among items with equal frequency, the least recently accessed one is evicted
 
-3. `__delitem__`
+This project demonstrates how to implement a sophisticated caching mechanism with Python's **magic methods**, while maintaining performance and correctness.
 
-```python
-def __delitem__(self, key: K):
-```
+The key features of the cache include:
 
--   Remove the key-value pair from the cache
--   Remove all associated metadata (frequency, recency)
--   Raise `KeyError` if the key does not exist
+-   Dictionary-like interface with `__getitem__`, `__setitem__`, `__delitem__`, `__len__`, and `__iter__`
+-   Automatic frequency tracking for all accesses
+-   Integration of LRU logic to resolve ties when evicting items
+-   Strict adherence to a maximum size for memory efficiency
 
-4. `__iter__`
+---
 
-```python
-def __iter__(self) -> Iterator[K]:
-```
+## 🎯 Purpose
 
--   Return an iterator over cache keys
--   Order is **arbitrary** (tests must not depend on ordering)
+The main objectives of this homework are:
 
-5. `__len__`
+-   **Understand and implement custom data structures**
+-   **Practice cache eviction strategies**, combining LFU and LRU
+-   **Work with Python magic methods** (`__getitem__`, `__setitem__`, etc.)
+-   **Use ordered and sorted containers** effectively (`OrderedDict`, `SortedDict`)
+-   **Develop robust unit tests** to ensure correctness of complex behavior
 
-```python
-def __len__(self) -> int:
-```
+By completing this task, you will gain practical experience in designing efficient caching systems suitable for performance-critical applications.
 
--   Return the number of key-value pairs currently stored in the cache
+---
 
-### Behavioral Summary
+## 🔍 How It Works
+
+### 1. Initialization
+
+The cache is initialized with a maximum size and internal data structures for:
+
+-   Storing key-value pairs
+-   Tracking access frequencies
+-   Maintaining recency order among items with the same frequency
+
+### 2. Key Operations
 
 | Operation      | Effect on Frequency | Effect on Recency |
 | -------------- | ------------------- | ----------------- |
@@ -129,39 +82,128 @@ def __len__(self) -> int:
 | new insertion  | initial frequency   | most recent       |
 | eviction       | LFU → LRU tie-break | —                 |
 
-### Constraints
+### 3. Eviction Logic
 
--   The cache must behave like a dictionary
--   All magic methods (`__getitem__`, `__setitem__`, etc.) must work correctly
--   The implementation must pass all provided unit tests
+When the cache exceeds its capacity:
 
-### Goal
+1. Identify the **minimum frequency** among all keys
+2. If multiple keys share this frequency, remove the **least recently used key**
+3. Update all relevant internal data structures to reflect removal
 
-The goal of this assignment is to practice:
+### 4. Iteration & Deletion
 
--   custom data structures
--   cache eviction strategies
--   combining LFU and LRU logic
--   correct usage of Python magic methods
--   working with ordered and sorted containers
+-   `__iter__` returns an iterator over all keys (order is arbitrary)
+-   `__delitem__` removes a key and all associated metadata, raising `KeyError` if the key does not exist
 
-## 📝 Description
-
-## 🎯 Purpose
-
-## 🔍 How It Works
+---
 
 ## 📜 Output Example
 
+```python
+cache = LfuDictCache(3)
+cache['a'] = 1
+cache['b'] = 2
+cache['c'] = 3
+
+# Access some keys to change frequencies
+_ = cache['a']
+_ = cache['b']
+_ = cache['a']
+
+# Insert a new key → triggers eviction of the LFU key ('c')
+cache['d'] = 4
+
+print(list(cache))
+# Output: ['a', 'b', 'd'] (order may vary)
+```
+
+---
+
 ## 📦 Usage
+
+```python
+from src import LfuDictCache
+
+cache = LfuDictCache(max_size=3)
+
+# Add items
+cache['x'] = 10
+cache['y'] = 20
+cache['z'] = 30
+
+# Access items
+_ = cache['x']
+
+# Insert new item (may evict LFU)
+cache['w'] = 40
+
+# Iterate over keys
+for key in cache:
+    print(key, cache[key])
+
+# Delete an item
+del cache['y']
+
+# Get the current size
+print(len(cache))
+```
+
+---
 
 ## 🧪 Running Tests
 
+Run the provided unit tests with:
+
+```bash
+python -m unittest discover -s tests
+```
+
+The tests cover:
+
+-   LFU and LRU eviction scenarios
+-   Key retrieval and insertion
+-   Deletion and iteration
+-   Error handling (`KeyError`)
+
+---
+
 ## ✅ Dependencies
+
+-   Python 3.10+
+-   `sortedcontainers` package (for `SortedDict`)
+
+No other external dependencies are required.
+
+---
 
 ## 🗂 Project Structure
 
+```
+.
+├── .gitignore
+├── main.py
+├── README.md
+├── src
+│   ├── __init__.py
+│   ├── dict_cache.py
+│   ├── lfu_dict_cache.py
+|   └── types.py
+└── tests
+    ├── __init__.py
+    └── test_lfu_dict_cache.py
+```
+
+---
+
 ## 📊 Project Status
+
+**Status:** Completed ✅
+
+-   All tests pass successfully
+-   LFU/LRU eviction logic verified
+-   Fully dictionary-compatible interface implemented
+
+---
 
 ## 📄 License
 
@@ -171,7 +213,10 @@ MIT License
 
 ## 🧮 Conclusion
 
+`LfuDictCache` demonstrates a practical approach to designing **efficient in-memory caches** using Python.  
+It combines **frequency tracking** with **recency ordering**, providing both LFU and LRU behaviors for real-world applications like caching, memory management, and performance optimization.
+
 ---
 
-Made with ❤️ and `Python` by **Sam-Shepsl Malikin** 🎓
+Made with ❤️ and `Python` by **Sam-Shepsl Malikin** 🎓  
 © 2025 All rights reserved.
